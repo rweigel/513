@@ -99,14 +99,14 @@ pyplot.figure(1)
 pyplot.title('Explicit solver')
 pyplot.xlabel('X range in d')
 pyplot.ylabel('Y Range in d')
+pyplot.ylim([-2, 2])
+pyplot.xlim([-2, 2])
 
 pyplot.figure(2)
 pyplot.title('Runge Kutta 54 solver')
 pyplot.xlabel('X range in d')
 pyplot.ylabel('Y Range in d')
-
-
-
-
+pyplot.ylim([-2, 2])
+pyplot.xlim([-2, 2])
 
 
