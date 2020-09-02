@@ -49,7 +49,7 @@ def point_E_Field(q, charge_loc, field_loc):
     E = np.empty((2,))
     x_prime, y_prime = charge_loc
     x, y = field_loc
-    assert x == 0
+    # assert x == 0
     # assert y == 1
     E_x = k * q * (x - x_prime) / \
           (((x - x_prime) ** 2 + (y - y_prime) ** 2) ** (3 / 2))
@@ -63,32 +63,54 @@ def point_E_Field(q, charge_loc, field_loc):
 # I am going to start iterating my solution from two point charges of distance 2 * L
 num_charges = 1
 error = []
+error_2 = []
 converged = False
 
 ii_count = 0
 
 while not converged and ii_count < 25:
     charge_locs = np.zeros((num_charges, 2))  # Initialize my points
+    charge_locs_2 = np.zeros((num_charges, 2))  # I am changing the point scheme that I am working with
+                                                # this was done as a recommendation to smooth my graph
     if num_charges == 1:
         charge_locs[:, 1] = 0
+        charge_locs_2[:, 1] = 0
     else:
         charge_locs[:, 0] = np.linspace(-1, 1, num_charges)
+        charge_locs_2[:, 0] = np.arange(-num_charges+1, num_charges, 2) * (1 / (num_charges + 1))
     E = np.zeros((2,))
-    for loc in charge_locs:
+    E_2 = np.zeros((2,))
+    for loc, loc_2 in zip(charge_locs, charge_locs_2):
         E += point_E_Field(q=(1 / num_charges), charge_loc=loc, field_loc=np.array([0, 1]))
+        E_2 += point_E_Field(q=(1 / num_charges), charge_loc=loc_2, field_loc=np.array([0, 1]))
     # First, I want to make sure E_x is close to 0
-    assert np.abs(E[0]) < 1e-5
-    error.append(np.abs(E_exact - E[1]) / E_exact)  # For some reason I am getting half the value here
+    # assert np.abs(E[0]) < 1e-5
+    error.append((np.abs(E_exact - E[1]) / E_exact) * 100)
+    error_2.append((np.abs(E_exact - E_2[1]) / E_exact) * 100)  # For some reason I am getting half the value here
     converged = True if error[-1] < 0.01 else False # I want to 1% to make the plot look better
     ii_count += 1
     num_charges += 1
 
 error = np.asarray(error)
 pyplot.figure(1)
-pyplot.plot(np.arange(2, error.size + 2), error)
-e_ind = (error > 0.1).nonzero()[0].size
-pyplot.plot(np.arange(2, e_ind+3), error[:e_ind+1])
-pyplot.title('Error Between Exact and Approximation')
+pyplot.plot(np.arange(1, error.size + 1), error)
+e_ind = (error > 10).nonzero()[0].size
+pyplot.plot(np.arange(1, e_ind+2), error[:e_ind+1])
+pyplot.plot(e_ind+1, error[e_ind], '*')
+pyplot.title('Error Between Exact and Approximation\nUsing fixed end points')
 pyplot.ylabel('Error (%)')
 pyplot.xlabel('Number of charges')
-pyplot.legend(['>1% Error Threshold', '>10% Error Threshold'])
+pyplot.legend(['>1% Error Threshold', '>10% Error Threshold', 'Error {:.2f}'.format(error[e_ind])])
+error1 = error
+
+error = np.asarray(error_2)
+pyplot.figure(2)
+pyplot.plot(np.arange(1, error.size + 1), error)
+e_ind = (error > 10).nonzero()[0].size
+pyplot.plot(np.arange(1, e_ind+2), error[:e_ind+1])
+pyplot.plot(e_ind+1, error[e_ind], '*')
+pyplot.title('Error Between Exact and Approximation\nUsing deltas from end points')
+pyplot.ylabel('Error (%)')
+pyplot.xlabel('Number of charges')
+pyplot.legend(['>1% Error Threshold', '>10% Error Threshold', 'Error {:.2f}'.format(error[e_ind])])
+error2 = error
