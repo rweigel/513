@@ -1,5 +1,5 @@
 ## This is my plotting function homework 1 assignment 1
-# Matthew Jackson
+#  Matthew Jackson
 # August 31, 2020
 # Phys 513
 
